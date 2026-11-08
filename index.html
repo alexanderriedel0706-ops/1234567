@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Dönerstadt – Ich glaubs Schopfloch</title>
+<style>
+:root{--cream:#fff2d7;--ink:#24170f;--gold:#f4b544;--red:#a93620;--green:#376c43;--night:#172532;--panel:#fff8e9}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:#172532}body{overscroll-behavior:none}
+button{font:inherit;font-weight:850;border:0;border-radius:14px;padding:13px 20px;background:linear-gradient(#ffd36e,#e9a52d);color:#39200b;box-shadow:0 5px 0 #9d5d1b;cursor:pointer;touch-action:manipulation}
+button:active{transform:translateY(3px);box-shadow:0 2px 0 #9d5d1b}button:disabled{opacity:.5}
+#app{max-width:900px;min-height:100vh;margin:auto;background:#e8d0a5;box-shadow:0 0 60px #0008;position:relative;overflow:hidden}
+.screen{display:none;min-height:100vh;padding:18px;touch-action:pan-y}.game-screen canvas{touch-action:none}.screen.active{display:flex;flex-direction:column}
+.brand{font-weight:1000;letter-spacing:1px;color:#fff4d8;text-shadow:0 3px 0 #542b16,0 5px 12px #0008;font-size:clamp(25px,6vw,43px);text-align:center;margin:5px 0}
+.subbrand{text-align:center;color:#fff1d2;font-weight:650;text-shadow:0 2px 4px #0009;margin:0 0 15px}
+.city{background:linear-gradient(#f4a75e 0%,#f7d18d 45%,#9caa78 46%,#4c6549 100%);position:relative;overflow:hidden;justify-content:flex-end}
+.city:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#fff3 0 1px,transparent 1px 100%);background-size:70px 100%;opacity:.2}
+.sun{position:absolute;top:8%;right:12%;width:85px;height:85px;border-radius:50%;background:#ffe6a1;box-shadow:0 0 55px #ffe4a4}
+.skyline{position:absolute;bottom:28%;left:0;right:0;height:45%;display:flex;align-items:end;gap:7px;padding:0 4%}
+.building{flex:1;position:relative;background:#bd7854;border:3px solid #81472f;border-bottom:0;min-width:25px;box-shadow:inset 0 0 0 4px #d89a6b}
+.building:nth-child(2n){background:#e1b67c}.building:nth-child(3n){height:85%!important;background:#9f6c54}
+.windows{position:absolute;inset:12px 8px;background:repeating-linear-gradient(90deg,#f9d98c 0 9px,transparent 9px 21px),repeating-linear-gradient(0deg,transparent 0 16px,#f9d98c 16px 25px);opacity:.8}
+.street{position:absolute;bottom:0;height:29%;left:0;right:0;background:linear-gradient(#69665b,#282e32)}
+.street:after{content:"";position:absolute;top:52%;left:0;right:0;border-top:4px dashed #f7e2ad}
+.shop{position:absolute;bottom:19%;left:5%;width:90%;height:25%;background:#f6e1b8;border:5px solid #6d3923;border-radius:8px 8px 0 0;box-shadow:0 8px 0 #6b3d27;display:flex;align-items:center;justify-content:center}
+.shop-sign{position:absolute;top:-28px;left:8%;right:8%;height:33px;background:#a93620;color:#fff0d0;text-align:center;font-weight:1000;letter-spacing:3px;border:3px solid #6b2b1b;border-radius:5px}
+.shop-window{width:80%;height:72%;background:linear-gradient(120deg,#6b9a91,#244f4b);border:7px solid #75442b;position:relative}
+.shop-window:after{content:"🥙  🍅  🥬";position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:25px}
+.intro-bottom{position:relative;z-index:2;background:#fff5df;border:3px solid #86502d;border-radius:22px;padding:16px;margin-top:20px;box-shadow:0 8px 0 #75442b}
+.cook-row{display:flex;align-items:center;gap:13px}.cook{font-size:clamp(65px,18vw,110px);filter:drop-shadow(0 5px 3px #0005);flex-shrink:0}.speech{background:#fff;border:2px solid #c28a52;border-radius:18px;padding:13px;font-weight:650;line-height:1.45;position:relative}.speech:before{content:"";position:absolute;left:-12px;top:25px;border-width:10px 12px 10px 0;border-style:solid;border-color:transparent #c28a52 transparent transparent}
+.intro-bottom button{width:100%;margin-top:14px}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:#35271d;color:#fff0d0;border-radius:13px;padding:10px 13px;margin-bottom:12px;font-weight:800}
+.hud b{color:#ffd16d}.game-screen{background:radial-gradient(circle at 50% 0,#f4d7a0,#c99b61 68%,#9c7045)}
+.game-title{font-size:clamp(24px,5vw,34px);font-weight:1000;text-align:center;color:#5a2e19;margin:5px 0}
+.instruction{text-align:center;max-width:650px;margin:0 auto 12px;line-height:1.45;font-weight:650;color:#563a27}
+.card{background:var(--panel);border:3px solid #8a5735;border-radius:20px;padding:16px;box-shadow:0 7px 0 #87512f;margin:auto 0}
+.progress{height:9px;background:#d6c4a6;border-radius:9px;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;background:#3d7b4b;width:0}
+.question{font-size:clamp(19px,4vw,25px);font-weight:900;line-height:1.25;margin:15px 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answers button{min-height:64px;background:linear-gradient(#fff,#f1dfc2);box-shadow:0 4px 0 #b88c5c;color:#382516;border:2px solid #d0a879}
+.feedback{background:#3b2a20;color:#fff0d7;padding:12px;border-radius:12px;margin-top:13px;min-height:50px;line-height:1.4}
+.action-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:15px}
+.skewer-scene{height:350px;position:relative;perspective:900px;overflow:hidden;border-radius:18px;overflow:hidden;background:linear-gradient(90deg,#32251f,#60432e 18%,#39291f 50%,#62442d 82%,#2b211b);border:5px solid #79502f;box-shadow:inset 0 0 30px #0009}
+.tile{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 58px,#ffffff0b 59px 62px)}
+.glow{position:absolute;width:210px;height:270px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(ellipse,#ff9e39a8,#ff6b1b22 65%,transparent 70%)}
+.rotator{position:absolute;left:50%;top:50%;width:160px;height:290px;transform:translate(-50%,-50%);transform-origin:50% 50%;animation:spin 5s linear infinite;transform-style:preserve-3d;will-change:transform}
+@keyframes spin{0%{transform:translate(-50%,-50%) rotateY(0deg)}100%{transform:translate(-50%,-50%) rotateY(360deg)}}
+.spit-core{position:absolute;left:75px;top:-5px;width:11px;height:300px;background:linear-gradient(90deg,#555,#e7e1d7,#777);border-radius:8px;z-index:1}
+.meat-stack{position:absolute;left:18px;top:20px;width:125px;height:250px;border-radius:48% 48% 34% 34% / 16% 16% 10% 10%;background:radial-gradient(ellipse at 30% 20%,#f4a04a 0 5%,transparent 25%),radial-gradient(ellipse at 65% 55%,#e17a32 0 7%,transparent 24%),repeating-linear-gradient(176deg,#552014 0 7px,#9b3d1e 8px 17px,#d96b2c 18px 23px,#7b2d19 24px 34px);box-shadow:inset 17px 0 22px #2d100a,inset -17px 0 22px #2d100a,0 0 24px #ff9b3888,5px 8px 12px #160c08;transform:translateZ(24px);backface-visibility:visible}
+.meat-stack:before{content:"";position:absolute;inset:12px 9px;background:repeating-linear-gradient(170deg,transparent 0 18px,#f7a34a99 19px 22px,transparent 23px 39px);border-radius:50%}
+.meat-stack:after{content:"";position:absolute;left:17px;right:17px;top:0;height:18px;background:radial-gradient(ellipse,#f4b15c,#a94a21);border-radius:50%;box-shadow:0 6px 5px #3b170d}.meat-stack{outline:1px solid #5a2414}
+.rotator:after{content:"";position:absolute;left:18px;top:20px;width:125px;height:250px;border-radius:48%;transform:translateZ(-24px);background:linear-gradient(90deg,#35130b,#9b3c1d 45%,#3d160d);filter:blur(1px)}.burner{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);width:220px;height:27px;border-radius:50%;background:linear-gradient(#e5a14a,#50271b);box-shadow:0 0 22px #ff9d32}
+.knife-art{position:absolute;left:calc(50% - 10px);top:42%;width:175px;height:16px;background:linear-gradient(#fff,#9da4a8 50%,#555);border-radius:4px;transform:rotate(-17deg);z-index:5;transform-origin:10% 50%;pointer-events:none;box-shadow:0 4px 6px #0008}
+.knife-art:after{content:"";position:absolute;left:-44px;top:-4px;width:48px;height:24px;background:linear-gradient(90deg,#9a4d20,#522711);border-radius:6px}
+.swipe-pad{margin-top:12px;touch-action:none;overscroll-behavior:contain;border:3px dashed #81512d;border-radius:15px;background:#fff1d6;text-align:center;padding:14px;touch-action:none;user-select:none;font-weight:850;color:#5b321b}
+.stats{display:flex;justify-content:space-around;font-weight:900;margin:12px 0}.stats span{background:#38281d;color:#fff0d5;padding:8px 13px;border-radius:12px}.stats b{color:#ffd06a}
+.catch-scene{height:390px;position:relative;overflow:hidden;border:5px solid #74452a;border-radius:20px;background:linear-gradient(#8eb4b2,#d3c99b 66%,#765039 67%,#39271e)}
+.kitchen-back{position:absolute;top:0;left:0;right:0;height:68%;background:repeating-linear-gradient(90deg,#ffffff18 0 2px,transparent 2px 80px),linear-gradient(#a7c5bd,#e4d4aa)}
+.falling-item{position:absolute;top:-45px;font-size:35px;filter:drop-shadow(0 4px 2px #0006);z-index:4;animation:drop linear forwards;cursor:pointer}
+@keyframes drop{to{transform:translateY(470px) rotate(160deg)}}
+.player-doner{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:150px;height:125px;z-index:3;transition:left .08s linear}
+.pita{position:absolute;bottom:0;left:15px;width:120px;height:100px;background:linear-gradient(120deg,#ffe0a1,#d98a35 70%,#9c5526);border:5px solid #8a4a23;border-radius:50% 50% 25% 25%;clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);box-shadow:inset 0 -13px #b9692e}
+.pita-fill{position:absolute;bottom:55px;left:25px;width:100px;height:0;border-radius:50% 50% 10% 10%;background:repeating-linear-gradient(0deg,#3e7c3f 0 8px,#e1b94e 8px 15px,#b7472c 15px 22px,#f4e4bf 22px 28px);z-index:2;transition:height .2s}
+.player-doner:after{content:"🥙";position:absolute;bottom:9px;left:49px;font-size:40px;opacity:.18}
+.catch-help{position:absolute;top:10px;left:0;right:0;text-align:center;color:#30251b;font-weight:900;text-shadow:0 1px #fff}
+.sauce-board{background:linear-gradient(135deg,#e6c89a,#b77d4c);border:5px solid #75452a;border-radius:18px;padding:20px;min-height:330px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px}
+.sauce-bread{width:220px;height:150px;position:relative;background:linear-gradient(120deg,#f9d99c,#c17b32);border:9px solid #8c4b24;border-radius:50% 50% 25% 25%;box-shadow:inset 0 -15px #a75d28}
+.sauce-line{position:absolute;left:25px;right:25px;top:40px;height:8px;border-radius:50%;background:#a83d22;transform:rotate(-8deg);box-shadow:0 28px #a83d22,0 56px #a83d22}
+.target{width:min(100%,300px);height:26px;border-radius:20px;background:linear-gradient(90deg,#c84b31 0 35%,#f1cf74 35% 65%,#c84b31 65%);border:3px solid #704126;position:relative;overflow:hidden}
+.marker{position:absolute;top:-3px;bottom:-3px;width:6px;background:#1d2931;left:0;box-shadow:0 0 5px #fff}
+.end-screen{background:linear-gradient(#3d6448,#172d2a);color:#fff4dc;justify-content:center;text-align:center}
+.end-screen h1{font-size:clamp(32px,8vw,55px);color:#ffd16b}.result{font-size:30px;font-weight:1000;color:#ffd16b}
+@media(max-width:560px){.screen{padding:13px}.answers{grid-template-columns:1fr}.skewer-scene{height:320px}.catch-scene{height:370px}.cook-row{align-items:flex-start}.speech{font-size:.92rem}}
+</style></head><body><main id="app">
+<section id="intro" class="screen city active">
+<div class="sun"></div><div class="skyline">
+ <div class="building" style="height:68%"><div class="windows"></div></div><div class="building" style="height:92%"><div class="windows"></div></div><div class="building" style="height:74%"><div class="windows"></div></div><div class="building" style="height:100%"><div class="windows"></div></div><div class="building" style="height:80%"><div class="windows"></div></div><div class="building" style="height:66%"><div class="windows"></div></div>
+</div><div class="street"></div><div class="shop"><div class="shop-sign">DÖNER PALAST</div><div class="shop-window"></div></div>
+<div style="position:relative;z-index:2;margin-top:auto"><div class="brand">DÖNERSTADT</div><div class="subbrand">Das große Döner-Abenteuer</div>
+<div class="intro-bottom"><div class="cook-row"><div class="cook" aria-label="Dönermacher Cem"><svg viewBox="0 0 150 240" width="112" height="180" role="img"><ellipse cx="75" cy="228" rx="42" ry="8" fill="#0003"/><path d="M43 207 L48 151 L102 151 L108 207Z" fill="#26384a"/><path d="M55 194 L50 228 L70 228 L77 195 M95 194 L100 228 L80 228 L75 195" fill="#34302b"/><path d="M42 90 Q75 72 108 90 L118 174 Q75 194 32 174Z" fill="#f1eee5" stroke="#8d7963" stroke-width="3"/><path d="M58 93 L75 116 L92 93 L84 155 L66 155Z" fill="#b52d20"/><path d="M44 111 L24 145 L34 158 L54 132 M106 111 L126 145 L116 158 L96 132" fill="#e8e0d3" stroke="#8d7963" stroke-width="3"/><circle cx="75" cy="58" r="34" fill="#c98758"/><path d="M43 57 Q43 19 76 20 Q111 20 109 60 Q95 43 77 47 Q58 43 43 57" fill="#3a261d"/><path d="M48 33 Q37 5 60 8 Q72 -2 83 8 Q110 -1 111 28 Q96 17 75 22 Q58 19 48 33" fill="#fff" stroke="#c8bba9" stroke-width="3"/><path d="M59 58 Q64 54 69 58 M82 58 Q87 54 92 58" fill="none" stroke="#352219" stroke-width="3" stroke-linecap="round"/><path d="M69 76 Q76 82 84 75" fill="none" stroke="#6d2c22" stroke-width="3" stroke-linecap="round"/><path d="M53 85 Q75 98 97 85" fill="#4b2a1e"/><path d="M31 164 Q75 177 119 164 L114 182 Q75 198 36 182Z" fill="#a93420" stroke="#6d281b" stroke-width="3"/><path d="M34 170 L116 170" stroke="#f4d49a" stroke-width="4"/></svg></div><div class="speech"><b>Selam! Ich bin Chef Cem.</b><br>Willkommen in meiner Dönerbude! Heute brauche ich deine Hilfe. Meistere vier Challenges: Quiz, Spieß schneiden, Zutaten fangen und Soßen-Feintuning. Schaffst du den Titel Döner-Profi?</div></div><button id="begin">Los geht's – zum ersten Spiel! ➜</button></div></div>
+</section>
+<section id="game" class="screen game-screen">
+<div class="hud"><span>🥙 DÖNERSTADT</span><span>Spiel <b id="stageNo">1</b>/4</span><span>🏆 <b id="score">0</b> Pkt.</span></div>
+<h2 class="game-title" id="title"></h2><p class="instruction" id="instruction"></p>
+<div class="card" id="content"></div>
+</section>
+<section id="ending" class="screen end-screen">
+<div style="font-size:75px">🏆🥙🏆</div><h1>Döner-Profi!</h1><p>Chef Cem ist beeindruckt. Du hast alle vier Challenges geschafft.</p><div class="result"><span id="finalScore">0</span> Punkte</div><p id="rank"></p><button id="again">Nochmal spielen</button>
+</section></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const stages=[
+ {title:"1. Das große Döner-Quiz",desc:"Teste dein Bauchgefühl: Wissen, Schätzen und Döner-Popkultur."},
+ {title:"2. Meister am Fleischspieß",desc:"Wische schnell nach UNTEN über den Spieß – je flotter die Schnitte, desto größer die Serie!"},
+ {title:"3. Zutaten im Anflug",desc:"Zieh deinen Döner mit dem Finger hin und her. Fang so viele Zutaten wie möglich – nicht alle schaffst du!"},
+ {title:"4. Soßen-Meister",desc:"Tippe im richtigen Moment, damit die Soße im goldenen Feld landet. Es wird jede Runde kleiner und schneller!"}
+];
+let current=0,total=0,quizIndex=0,gameCleanups=[];
+function cleanup(){gameCleanups.forEach(f=>{try{f()}catch(e){}});gameCleanups=[]}
+function points(n){total+=n;$('score').textContent=total}
+function showIntro(){cleanup();$('game').classList.remove('active');$('ending').classList.remove('active');$('intro').classList.add('active')}
+function showGame(){cleanup();$('intro').classList.remove('active');$('ending').classList.remove('active');$('game').classList.add('active');$('stageNo').textContent=current+1;$('title').textContent=stages[current].title;$('instruction').textContent=stages[current].desc;brief(current,[renderQuiz,renderSkewer,renderCatch,renderSauce][current])}
+function next(){cleanup();current++;if(current>=4){$('game').classList.remove('active');$('ending').classList.add('active');$('finalScore').textContent=total;$('rank').textContent=total>=800?"Legende am Drehspieß! 🔥":total>=450?"Starker Döner-Könner! 🌟":"Guter Start – Übung macht den Döner!";}else showGame()}
+$('begin').onclick=()=>{current=0;total=0;$('score').textContent=0;showGame()};
+$('again').onclick=()=>{current=0;total=0;$('score').textContent=0;showGame()};
+function finishCard(text,detail){$('content').innerHTML=`<div style="text-align:center;padding:16px"><div style="font-size:50px">✅</div><h2>${text}</h2><p>${detail}</p><button id="continue">Weiter zum nächsten Spiel ➜</button></div>`;$('continue').onclick=next}
+const quiz=[
+{q:"Schätzfrage: Wie viele Döner werden in Deutschland ungefähr pro Tag verkauft?",a:["Rund 300.000","Rund 700.000","Rund 1,5 Millionen","Rund 3 Millionen"],c:2,why:"Oft wird eine Größenordnung von etwa 1,5 Millionen pro Tag genannt. Das ist eine Schätzung, keine täglich exakt gezählte Zahl.",p:100},
+{q:"Welche Zutat landet bei vielen Döner-Fans besonders gern zusätzlich im Brot?",a:["Schafskäse","Mais","Jalapeños","Extra Zwiebeln"],c:0,why:"Schafskäse ist ein beliebtes Extra – aber natürlich Geschmackssache.",p:80},
+{q:"Was wird in Deutschland oft als klassische Soßen-Auswahl angeboten?",a:["Knoblauch, Kräuter und scharf","Cocktail, Curry und Joghurt","Kräuter, Sesam und Zitrone","Scharf, BBQ und Honig-Senf"],c:0,why:"Knoblauch-, Kräuter- und scharfe Soße gehören in vielen Läden zur Standardauswahl.",p:80},
+{q:"Schätzfrage: Wie viele Gramm wiegt ein gut gefüllter Döner ungefähr?",a:["120–180 g","250–400 g","600–800 g","Über 1,2 kg"],c:1,why:"Je nach Brot, Fleisch und Füllung kann das stark variieren; 250–400 g ist eine plausible Größenordnung.",p:100},
+{q:"Welche dieser Zutaten ist in vielen Dönerläden eine typische Salat-Zutat?",a:["Rotkohl","Eisbergsalat","Weißkohl","Gurke"],c:0,why:"Rotkohl ist eine sehr verbreitete Zutat neben Salat, Tomate und Zwiebel.",p:70},
+{q:"Was beeinflusst den Geschmack des Fleisches am stärksten?",a:["Würzung und Marinade","Die Farbe des Brotpapiers","Die Form der Serviette","Die Länge des Spießnamens"],c:0,why:"Gewürze, Marinade, Fleischzuschnitt und Garung prägen den Geschmack.",p:80},
+{q:"Welche Beilage wird häufig zu einem Döner-Teller serviert?",a:["Pommes oder Reis","Bulgur oder Salat","Ofenkartoffeln","Fladenbrot und Beilagensalat"],c:0,why:"Pommes und Reis sind gängige Beilagen bei Döner-Tellern.",p:70},
+{q:"Schätzfrage: Wie lange braucht ein großer Fleischspieß ungefähr, bis die äußere Schicht gar ist? (Das hängt stark von Gerät und Hitze ab.)",a:["Etwa 5–10 Minuten","Etwa 20–40 Minuten","Etwa 1–2 Stunden","Etwa 4–6 Stunden"],c:1,why:"Die Garzeit ist abhängig von Größe, Hitze und Gerät. Die äußere Schicht wird nach und nach gegart und abgeschnitten.",p:100}
+];
+function renderQuiz(){quizIndex=0;let correct=0,review=[];function draw(){let q=quiz[quizIndex];$('content').innerHTML=`<div class="progress"><span style="width:${quizIndex/quiz.length*100}%"></span></div><small>FRAGE ${quizIndex+1} VON ${quiz.length}</small><div class="question">${q.q}</div><div class="answers">${q.a.map((a,i)=>`<button data-i="${i}">${a}</button>`).join('')}</div><div class="feedback">Tippe deine Antwort an – danach geht es direkt weiter.</div>`;[...document.querySelectorAll('[data-i]')].forEach(b=>b.onclick=()=>{let i=+b.dataset.i,ok=i===q.c;if(ok){correct++;points(q.p)}review.push({q:q.q,chosen:q.a[i],right:q.a[q.c],ok});quizIndex++;if(quizIndex<quiz.length)draw();else showReview()})}function showReview(){let mistakes=review.filter(x=>!x.ok);$('content').innerHTML=`<h2>Dein Quiz-Ergebnis: ${correct}/${quiz.length}</h2><div class="feedback">${mistakes.length?`Diese Antworten waren nicht richtig:`:'Stark! Alles richtig beantwortet.'}</div>${mistakes.map(x=>`<div style="border-bottom:1px solid #d7c2a2;padding:12px 0"><b>${x.q}</b><br><span style="color:#a93620">Deine Antwort: ${x.chosen}</span><br><span style="color:#27653b;font-weight:850">Richtig: ${x.right}</span></div>`).join('')}<div class="action-row"><button id="reviewNext">Weiter zum Spieß ➜</button></div>`;$('reviewNext').onclick=next}draw()}
+function mkCanvas(W,H){$('content').innerHTML=`<canvas id="cv" style="width:100%;max-width:440px;aspect-ratio:${W}/${H};display:block;margin:0 auto;border-radius:16px;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 5px 0 #6b4326"></canvas><div class="action-row" id="ar"></div>`;
+const cv=$('cv'),d=Math.min(2,devicePixelRatio||1);cv.width=W*d;cv.height=H*d;const c=cv.getContext('2d');c.scale(d,d);
+['touchstart','touchmove','touchend'].forEach(n=>cv.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]};
+return{cv,c,pos}}
+function loop(fn){let l=performance.now(),raf;const f=n=>{const dt=Math.min(.05,(n-l)/1000);l=n;fn(dt);raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f);gameCleanups.push(()=>cancelAnimationFrame(raf))}
+function txt(c,s,x,y,sz,col,al){c.font=`900 ${sz}px system-ui,sans-serif`;c.textAlign=al||'center';c.lineJoin='round';c.lineWidth=sz/5;c.strokeStyle='#000a';c.strokeText(s,x,y);c.fillStyle=col||'#fff';c.fillText(s,x,y)}
+function btn(label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{b.remove();fn()};$('ar').append(b)}
+function overlay(c,W,H,a,b){c.fillStyle='#000b';c.fillRect(0,0,W,H);txt(c,a,W/2,H/2-10,30,'#ffd16d');txt(c,b,W/2,H/2+24,15,'#fff')}
+
+function renderSkewer(){
+const W=360,H=450,{cv,c,pos}=mkCanvas(W,H),cx=170,top=80,bot=335;
+let st='ready',t=0,time=35,rot=0,cook=.62,lc=-9,sl=0,combo=0,best=0,score=0,anchor=0,px=0,py=0,down=false,fly=[],trail=[],msg='',mt=0,shr=0;
+btn('Spieß starten',()=>st='play');
+const col=(k,v,sh)=>{let r,g,b;if(k<.55){const f=k/.55;r=225-f*60;g=150-f*52;b=128-f*88}else{const f=Math.min(1,(k-.55)/.45);r=165-f*110;g=98-f*70;b=40-f*30}const m=(1+v*.2)*sh;return`rgb(${Math.max(0,r*m)|0},${Math.max(0,g*m)|0},${Math.max(0,b*m)|0})`};
+function cut(){combo=t-lc<1.3?combo+1:1;lc=t;best=Math.max(best,combo);const p=Math.round(20*(1+Math.min(combo-1,6)*.25));score+=p;sl++;msg='+'+p+(combo>1?'  ×'+combo:'');mt=1;fly.push({x:cx+50,y:Math.max(110,Math.min(300,py)),vx:150,vy:-90,r:0,k:cook});shr=Math.min(shr+.8,20)}
+cv.onpointerdown=e=>{if(st!='play')return;const p=pos(e);px=p[0];py=p[1];down=true;anchor=py;trail=[];try{cv.setPointerCapture(e.pointerId)}catch{}};
+cv.onpointermove=e=>{const p=pos(e);px=p[0];py=p[1];if(!down||st!='play')return;trail.push([px,py,1]);if(py<anchor)anchor=py;if(py-anchor>120&&Math.abs(px-cx)<125){cut();anchor=py}};
+cv.onpointerup=cv.onpointercancel=()=>{down=false};
+loop(dt=>{if(st=='end')return;
+if(st=='play'){t+=dt;time-=dt;if(time<=0){st='end';points(score);finishCard('Spieß abgesäbelt!',`${sl} Scheiben, beste Serie ${best}× – +${score} Punkte.`);return}}
+rot+=dt*1.6;mt=Math.max(0,mt-dt*1.4);
+let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#2a1d17');g.addColorStop(1,'#4a2f20');c.fillStyle=g;c.fillRect(0,0,W,H);
+c.strokeStyle='#ffffff10';c.lineWidth=2;for(let i=0;i<W;i+=60){c.beginPath();c.moveTo(i,0);c.lineTo(i,H);c.stroke()}for(let i=0;i<H;i+=60){c.beginPath();c.moveTo(0,i);c.lineTo(W,i);c.stroke()}
+const pul=.75+.25*Math.sin(t*6);g=c.createRadialGradient(cx,200,20,cx,200,230);g.addColorStop(0,`rgba(255,140,40,${.4*pul})`);g.addColorStop(1,'#0000');c.fillStyle=g;c.fillRect(0,0,W,H);
+// heizstab
+g=c.createLinearGradient(300,0,330,0);g.addColorStop(0,'#7a1c08');g.addColorStop(.5,`rgb(255,${120+60*pul|0},40)`);g.addColorStop(1,'#7a1c08');c.fillStyle=g;c.shadowColor='#ff7a1a';c.shadowBlur=25;c.fillRect(306,70,22,280);c.shadowBlur=0;
+// spieß
+g=c.createLinearGradient(cx-4,0,cx+4,0);g.addColorStop(0,'#777');g.addColorStop(.4,'#fff');g.addColorStop(1,'#666');c.fillStyle=g;c.fillRect(cx-4,36,8,375);c.beginPath();c.arc(cx,34,10,0,7);c.strokeStyle='#ddd';c.lineWidth=4;c.stroke();
+for(let y=top;y<bot;y+=2){const f=(y-top)/(bot-top),r=44+42*(1-f)-shr+Math.sin(y*.45)*2.2+Math.sin(y*.13)*3;
+for(let xs=-r;xs<r;xs+=3){const u=Math.max(-1,Math.min(1,(xs+1.5)/r)),a=Math.asin(u)+rot;let v=Math.sin(a*5+y*.11)*.5+Math.sin(a*11-y*.27)*.3+Math.sin(y*.8+a*2)*.2;if((y/6|0)%7==0)v+=.55;
+const sh=.3+.8*Math.sqrt(1-u*u)*(1-.3*u)+(Math.abs(u)>.94?.1:0);c.fillStyle=col(cook,v,sh);c.fillRect(cx+xs,y,3.2,2.2)}}
+const rt=88-shr;g=c.createRadialGradient(cx-10,top-3,3,cx,top,rt);g.addColorStop(0,col(cook,.8,1.4));g.addColorStop(1,col(cook,0,.7));c.fillStyle=g;c.beginPath();c.ellipse(cx,top,rt,11,0,0,7);c.fill();
+c.fillStyle='#333';c.beginPath();c.ellipse(cx,bot+3,48,8,0,0,7);c.fill();
+// teller
+c.fillStyle='#e9e4da';c.beginPath();c.ellipse(278,428,70,16,0,0,7);c.fill();c.strokeStyle='#8aa3b5';c.lineWidth=3;c.stroke();
+for(let i=0;i<Math.min(sl,16);i++){c.fillStyle=col(.65,Math.sin(i*2)*.5,1);c.beginPath();c.ellipse(262+(i%4)*10,424-(i/4|0)*4,15,6,0,0,7);c.fill()}
+// scheiben
+fly=fly.filter(s=>{s.vy+=900*dt;s.x+=s.vx*dt;s.y+=s.vy*dt;s.r+=dt*8;if(s.y>420)return false;c.save();c.translate(s.x,s.y);c.rotate(s.r);c.fillStyle=col(s.k,.2,1);c.strokeStyle='#3a160b';c.lineWidth=2;c.beginPath();c.ellipse(0,0,24,8,0,0,7);c.fill();c.stroke();c.restore();return true});
+// trail + messer
+trail=trail.filter(p=>(p[2]-=dt*3)>0);c.lineCap='round';trail.forEach((p,i)=>{if(i){c.strokeStyle=`rgba(255,255,255,${p[2]*.7})`;c.lineWidth=5*p[2];c.beginPath();c.moveTo(trail[i-1][0],trail[i-1][1]);c.lineTo(p[0],p[1]);c.stroke()}});
+if(down){c.save();c.translate(px,py);c.rotate(-.35);g=c.createLinearGradient(0,-8,0,8);g.addColorStop(0,'#fff');g.addColorStop(1,'#8c959b');c.fillStyle=g;c.beginPath();c.moveTo(-6,-7);c.lineTo(85,-4);c.lineTo(90,4);c.lineTo(-6,8);c.fill();c.fillStyle='#4a2410';c.fillRect(-52,-8,48,16);c.restore()}
+// hud
+txt(c,`⏱ ${Math.ceil(time)}s`,W-14,28,20,'#ffd16d','right');txt(c,`🥩 ${sl}`,14,28,20,'#fff','left');txt(c,`Serie ×${combo}`,W/2,28,18,combo>2?'#7dff8a':'#fff');
+if(mt>0){c.globalAlpha=Math.min(1,mt*1.5);txt(c,msg,W/2,60+(1-mt)*-20,20,'#ffd16d');c.globalAlpha=1}
+if(st=='ready')overlay(c,W,H,'Fleischspieß','Wische schnell nach UNTEN – halte die Serie am Laufen!')})}
+
+function item(c,k,x,y,r,s){c.save();c.translate(x,y);c.rotate(r);c.scale(s,s);c.lineWidth=2;c.strokeStyle='#0005';
+const G=(a,b)=>{const q=c.createRadialGradient(-6,-8,2,0,0,24);q.addColorStop(0,a);q.addColorStop(1,b);return q};
+if(k==0||k==6){c.fillStyle=k?G('#c4cf9a','#5a6b3a'):G('#ff8a6c','#c32a1a');c.beginPath();c.arc(0,2,20,0,7);c.fill();c.stroke();c.fillStyle=k?'#56662f':'#3c9a3c';for(let i=0;i<5;i++){c.save();c.translate(0,-16);c.rotate((i-2)*.65);c.beginPath();c.ellipse(0,-3,3,8,0,0,7);c.fill();c.restore()}
+if(k){c.fillStyle='#e6edd0';[[-9,4],[8,-2],[3,12],[-4,-6]].forEach(p=>{c.beginPath();c.arc(p[0],p[1],4,0,7);c.fill()});c.fillStyle='#222';c.fillRect(-9,0,5,5);c.fillRect(4,0,5,5)}else{c.fillStyle='#fff9';c.beginPath();c.ellipse(-8,-5,5,3,-.6,0,7);c.fill()}}
+else if(k==1){c.fillStyle=G('#c5ef7a','#3f9a2f');c.beginPath();for(let i=0;i<=16;i++){const a=i/16*6.283,rr=20+(i%2?6:-1);c.lineTo(Math.cos(a)*rr,Math.sin(a)*rr*.85)}c.closePath();c.fill();c.stroke();c.strokeStyle='#e8ffb0';c.lineWidth=1.5;for(let i=-2;i<=2;i++){c.beginPath();c.moveTo(0,14);c.lineTo(i*8,-10);c.stroke()}}
+else if(k==2){c.fillStyle=G('#fff','#c68fd6');c.beginPath();c.ellipse(0,3,18,20,0,0,7);c.fill();c.stroke();c.strokeStyle='#8b4f9f';c.lineWidth=1.5;[[14,16],[9,12],[4,7]].forEach(e=>{c.beginPath();c.ellipse(0,3,e[0],e[1],0,0,7);c.stroke()});c.strokeStyle='#8fbf5a';c.lineWidth=4;c.beginPath();c.moveTo(0,-16);c.lineTo(2,-26);c.stroke()}
+else if(k==3){c.fillStyle='#2d7a2d';c.beginPath();c.arc(0,0,20,0,7);c.fill();c.stroke();c.fillStyle=G('#e6f7b8','#a6d36f');c.beginPath();c.arc(0,0,16,0,7);c.fill();c.fillStyle='#f4fadf';for(let i=0;i<7;i++){c.beginPath();c.ellipse(Math.cos(i*.9)*8,Math.sin(i*.9)*8,2,3.5,i,0,7);c.fill()}}
+else if(k==4){c.fillStyle=G('#d98a4a','#6a2f16');c.beginPath();c.ellipse(0,0,23,15,.3,0,7);c.fill();c.stroke();c.strokeStyle='#4a1d0e';c.lineWidth=3;for(let i=-1;i<=1;i++){c.beginPath();c.moveTo(-14,i*6);c.lineTo(14,i*6-3);c.stroke()}c.strokeStyle='#ffd9a0aa';c.lineWidth=2;c.beginPath();c.moveTo(-12,-8);c.lineTo(8,-11);c.stroke()}
+else if(k==5){c.fillStyle='#e8a820';c.beginPath();c.moveTo(-22,10);c.lineTo(22,10);c.lineTo(22,18);c.lineTo(-22,18);c.fill();c.fillStyle=G('#ffe678','#f0b92a');c.beginPath();c.moveTo(-22,10);c.lineTo(22,10);c.lineTo(18,-14);c.closePath();c.fill();c.stroke();c.fillStyle='#e2a21e';[[-6,4,3],[8,5,2.5],[10,-3,2]].forEach(h=>{c.beginPath();c.arc(h[0],h[1],h[2],0,7);c.fill()})}
+c.restore()}
+
+function renderCatch(){
+const W=360,H=480,{cv,c,pos}=mkCanvas(W,H),PY=H-92;
+let st='ready',t=0,time=40,n=0,px=180,tx=180,items=[],sp=.4,pops=[],stack=[];
+btn("Los geht's",()=>st='play');
+cv.onpointerdown=e=>{tx=pos(e)[0];try{cv.setPointerCapture(e.pointerId)}catch{}};cv.onpointermove=e=>{tx=pos(e)[0]};
+loop(dt=>{if(st=='end')return;
+if(st=='play'){t+=dt;time-=dt;px+=(Math.max(55,Math.min(W-55,tx))-px)*Math.min(1,dt*14);sp-=dt;
+if(sp<=0){sp=Math.max(.2,.48-t*.007);items.push({k:Math.random()*6|0,x:30+Math.random()*300,y:-25,r:0,vr:(Math.random()-.5)*4,ph:Math.random()*6,v:210+t*5+Math.random()*90,sw:Math.random()*16})}
+items=items.filter(o=>{o.y+=o.v*dt;o.r+=o.vr*dt;o.dx=o.x+Math.sin(t*3+o.ph)*o.sw;if(o.y>PY-14&&o.y<PY+34&&Math.abs(o.dx-px)<56){n++;stack.push(o.k);pops.push({s:'+12',x:o.dx,y:PY-20,a:1});return false}return o.y<H+30});
+if(time<=0){st='end';const b=n>=55?150:n>=40?100:n>=25?50:0,p=n*12+b;points(p);finishCard('Zeit abgelaufen!',`${n} Zutaten gefangen – +${p} Punkte${b?' (inkl. Bonus '+b+')':''}.`);return}}
+let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#9cc4c0');g.addColorStop(.7,'#e8d9b0');g.addColorStop(.71,'#8a5c3c');g.addColorStop(1,'#3b281d');c.fillStyle=g;c.fillRect(0,0,W,H);
+c.strokeStyle='#ffffff40';c.lineWidth=2;for(let i=0;i<W;i+=45){c.beginPath();c.moveTo(i,0);c.lineTo(i,H*.7);c.stroke()}for(let i=0;i<H*.7;i+=45){c.beginPath();c.moveTo(0,i);c.lineTo(W,i);c.stroke()}
+c.fillStyle='#a9d8f0';c.fillRect(250,90,80,90);c.strokeStyle='#7b4b2c';c.lineWidth=6;c.strokeRect(250,90,80,90);
+items.forEach(o=>item(c,o.k,o.dx??o.x,o.y,o.r,1));
+c.save();c.translate(px,PY);c.fillStyle='#b97a35';c.beginPath();c.moveTo(-55,0);c.quadraticCurveTo(0,-10,55,0);c.lineTo(48,62);c.quadraticCurveTo(0,78,-48,62);c.closePath();c.fill();
+stack.slice(-9).forEach((k,i)=>item(c,k,(i%3-1)*24,6-(i/3|0)*7,i,.5));
+g=c.createLinearGradient(0,10,0,75);g.addColorStop(0,'#f8d594');g.addColorStop(1,'#d38c3d');c.fillStyle=g;c.beginPath();c.moveTo(-57,14);c.quadraticCurveTo(0,28,57,14);c.lineTo(48,64);c.quadraticCurveTo(0,80,-48,64);c.closePath();c.fill();c.strokeStyle='#8a4a23';c.lineWidth=3;c.stroke();
+c.strokeStyle='#a8622a66';c.lineWidth=3;[[-24,36],[0,42],[24,36]].forEach(p=>{c.beginPath();c.arc(p[0],p[1],7,0,7);c.stroke()});c.restore();
+pops=pops.filter(p=>(p.a-=dt*1.5)>0);pops.forEach(p=>{c.globalAlpha=p.a;txt(c,p.s,p.x,p.y-(1-p.a)*40,17,'#7dff8a');c.globalAlpha=1});
+txt(c,`🥗 ${n}`,14,32,24,'#fff','left');txt(c,`⏱ ${Math.ceil(time)}s`,W-14,32,22,'#ffd16d','right');
+if(st=='ready')overlay(c,W,H,'Zutaten fangen','Fang so viele Zutaten wie möglich – jede zählt!')})}
+
+function renderSauce(){
+const W=360,H=450,{cv,c,pos}=mkCanvas(W,H),S=[['Knoblauchsoße','#fffbe8'],['Kräutersoße','#9fd36a'],['Scharfe Soße','#e0381f']],TW=[100,84,70,58,46,36],BY=330;
+let st='ready',rd=0,ph=0,t=0,tx=180,hits=0,streak=0,bestS=0,score=0,sq=null,blobs=[],msg='',mt=0,wait=0,nx=180;
+const newT=()=>tx=130+Math.random()*100;newT();
+btn('Soßen-Challenge starten',()=>st='play');
+const tgt=()=>rd>=3?180+62*Math.sin(t*1.1+rd):tx;
+cv.onpointerdown=e=>{if(st=='play'&&!sq&&wait<=0)sq={x:nx,t:0,col:S[rd%3][1]}};
+loop(dt=>{if(st=='end')return;t+=dt;wait-=dt;mt=Math.max(0,mt-dt);
+if(st=='play'&&wait<=0&&!sq)ph+=dt*(1.9+rd*.6+(rd>1?1:0)*.9*Math.sin(t*1.9));nx=180+135*Math.sin(ph);const tw=TW[Math.min(rd,5)];
+if(sq){sq.t+=dt;if(sq.t>.3){const d=Math.abs(sq.x-tgt()),perf=d<tw*.18,hit=d<tw/2;let p=0;if(hit){hits++;streak++;bestS=Math.max(bestS,streak);p=perf?100:60;msg=perf?'🎯 PERFEKT! +'+p:'Treffer! +'+p}else{streak=0;msg='Daneben! 💦'}score+=p;mt=1.2;blobs.push({x:sq.x,col:sq.col,hit});sq=null;rd++;wait=.9;newT();if(rd>=6){st='end';const b=hits==6?150:hits>=5?60:0;points(score+b);finishCard('Soßen-Station geschafft!',`${hits} von 6 Treffern – +${score+b} Punkte${b?' (Bonus '+b+')':''}.`);return}}}
+let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#cfa56e');g.addColorStop(1,'#8c5b34');c.fillStyle=g;c.fillRect(0,0,W,H);c.strokeStyle='#0002';c.lineWidth=2;for(let i=0;i<H;i+=38){c.beginPath();c.moveTo(0,i);c.lineTo(W,i);c.stroke()}
+// brot
+c.fillStyle='#8c4b24';c.beginPath();c.ellipse(180,BY,175,72,0,0,7);c.fill();g=c.createLinearGradient(0,BY-60,0,BY+60);g.addColorStop(0,'#fbe2a8');g.addColorStop(1,'#d9a45a');c.fillStyle=g;c.beginPath();c.ellipse(180,BY,163,62,0,0,7);c.fill();
+c.fillStyle='#5aa83a';c.beginPath();for(let x=40;x<=320;x+=10)c.lineTo(x,BY-34+(x/10%2?6:-2));for(let x=320;x>=40;x-=10)c.lineTo(x,BY-14);c.fill();
+c.fillStyle='#9b3f7a';for(let x=48;x<320;x+=22){c.beginPath();c.ellipse(x,BY+36,9,4,.3,0,7);c.fill()}
+c.fillStyle='#d33a24';[70,130,230,290].forEach(x=>{c.beginPath();c.ellipse(x,BY+12,13,7,0,0,7);c.fill()});
+g=c.createLinearGradient(0,BY-14,0,BY+14);g.addColorStop(0,'#b06a34');g.addColorStop(1,'#6a2f16');c.fillStyle=g;c.beginPath();c.roundRect(52,BY-14,256,26,13);c.fill();
+if(st!='ready'&&rd<6){const T=tgt(),a=.35+.2*Math.sin(t*6);c.fillStyle=`rgba(255,215,60,${a+.15})`;c.fillRect(T-tw/2,BY-62,tw,124);c.strokeStyle='#fff';c.setLineDash([6,5]);c.lineWidth=3;c.strokeRect(T-tw/2,BY-62,tw,124);c.setLineDash([]);c.fillStyle='#fff';c.beginPath();c.moveTo(T,BY-66);c.lineTo(T-9,BY-80);c.lineTo(T+9,BY-80);c.fill()}
+blobs.forEach(b=>{c.fillStyle=b.col;c.strokeStyle=b.hit?'#0003':'#a00';c.lineWidth=2;c.beginPath();c.ellipse(b.x,BY+4,13,26,0,0,7);c.fill();c.stroke();c.fillStyle='#fff7';c.beginPath();c.ellipse(b.x-4,BY-6,3,9,0,0,7);c.fill()});
+// flasche
+const col=S[Math.min(rd,5)%3][1],bx=sq?sq.x:nx;c.fillStyle='#4a3020';c.fillRect(20,28,320,8);
+if(sq){c.strokeStyle=col;c.lineWidth=8;c.lineCap='round';c.beginPath();c.moveTo(bx,120);c.lineTo(bx,120+Math.min(1,sq.t/.3)*(BY-120));c.stroke()}
+if(rd<6){c.fillStyle=col;c.strokeStyle='#3a2a1a';c.lineWidth=3;c.beginPath();c.roundRect(bx-20,52,40,56,10);c.fill();c.stroke();c.fillStyle='#e8e0d0';c.beginPath();c.moveTo(bx-8,108);c.lineTo(bx+8,108);c.lineTo(bx+3,124);c.lineTo(bx-3,124);c.fill();c.fillStyle='#fff6';c.fillRect(bx-14,58,5,40)}
+txt(c,rd<6?`Runde ${rd+1}/6 – ${S[rd%3][0]}`:'Fertig!',W/2,22,17,'#fff');txt(c,`Treffer ${hits}`,12,H-14,17,'#fff','left');txt(c,`Serie ×${streak}`,W-12,H-14,17,'#7dff8a','right');
+if(mt>0){c.globalAlpha=Math.min(1,mt*2);txt(c,msg,W/2,H-60,24,'#ffd16d');c.globalAlpha=1}
+if(rd<6&&st=='play'&&!sq&&wait<=0)txt(c,'TIPPEN = SPRITZEN',W/2,H-100,15,'#fff');
+if(st=='ready')overlay(c,W,H,'Soßen-Meister','6 Runden – Zielfeld wird kleiner & schneller. Tippe zum Spritzen!')})}
+const CEM=s=>`<svg viewBox="0 0 160 240" width="${s}" height="${s*1.5}" stroke="#222" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><ellipse cx="80" cy="232" rx="46" ry="7" fill="#0003" stroke="none"/><path d="M58 150 L56 214 L82 214 L84 160 L98 214 L120 214 L110 150Z" fill="#6b6f75"/><path d="M50 232 Q48 214 62 211 L84 211 L84 232Z M92 232 Q92 214 104 211 L126 211 L124 232Z" fill="#6a3b1e"/>
+<path d="M42 104 Q80 84 122 104 L132 160 Q84 200 34 160Z" fill="#fff"/><ellipse cx="84" cy="152" rx="40" ry="36" fill="#fff"/><path d="M62 112 L70 150 L100 150 L108 112" fill="#f3f3f3"/><path d="M52 108 L26 78" stroke-width="19"/><path d="M52 108 L26 78" stroke="#fff" stroke-width="13"/><circle cx="24" cy="75" r="10" fill="#f2c28f"/><path d="M24 70 L6 14" stroke="#222" stroke-width="9"/><path d="M24 70 L6 14" stroke="#cfe8ff" stroke-width="5"/><path d="M6 14 L0 2 M6 14 L18 8 M6 14 L-4 18" stroke="#ffd34d" stroke-width="3"/>
+<path d="M112 108 L130 84" stroke-width="19"/><path d="M112 108 L130 84" stroke="#fff" stroke-width="13"/><path d="M120 66 Q136 40 154 64 Q150 84 132 84Z" fill="#f4c542"/><path d="M122 66 Q130 54 140 58 Q132 46 120 56Z" fill="#4c9a3c"/><circle cx="144" cy="52" r="6" fill="#d33a24"/><circle cx="128" cy="82" r="8" fill="#f2c28f"/>
+<circle cx="52" cy="66" r="7" fill="#f2c28f"/><circle cx="108" cy="66" r="7" fill="#f2c28f"/><ellipse cx="80" cy="64" rx="28" ry="30" fill="#f2c28f"/><path d="M52 42 Q46 14 68 18 Q80 2 94 18 Q116 14 108 42Z" fill="#fff"/><path d="M52 42 Q80 50 108 42" fill="none"/>
+<ellipse cx="68" cy="56" rx="7" ry="9" fill="#fff"/><ellipse cx="92" cy="56" rx="7" ry="9" fill="#fff"/><circle cx="69" cy="58" r="3" fill="#222"/><circle cx="91" cy="58" r="3" fill="#222"/><path d="M58 44 L76 49 M104 44 L86 49" stroke-width="3.5"/><ellipse cx="82" cy="70" rx="9" ry="8" fill="#e8a672"/>
+<path d="M58 80 Q70 72 82 78 Q94 72 106 80 Q96 88 82 84 Q68 88 58 80Z" fill="#2a2a2a"/><path d="M64 88 Q82 106 100 88Z" fill="#fff"/></svg>`;
+document.querySelector('.cook').innerHTML=CEM(112);
+document.querySelector('.speech').innerHTML='Hallo, ich bin <b>Cem</b>, dein Dönermacher! 🥙 Willkommen bei <b>„Ich glaubs“</b> in Schopfloch! Gib deinen Namen ein und meistere 4 Challenges. Wer am Ende ganz oben im Ranking steht, gewinnt einen <b>Döner-Gutschein</b>!';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const BR=[
+'Zuerst ein kleines <b>Döner-Quiz</b>! Tippe die richtige Antwort an – jede richtige bringt dir Punkte.',
+'Jetzt am <b>Spieß</b>! Wische mit dem Finger schnell von oben nach <b>UNTEN</b> über den Spieß. Je schneller du Scheibe um Scheibe abschneidest, desto größer deine Serie. 35 Sekunden!',
+'Zeit für <b>Zutaten</b>! Zieh dein Fladenbrot mit dem Finger nach links und rechts. Die Zutaten fallen schnell – du erwischst nicht alle! Je mehr du fängst, desto mehr Punkte. 40 Sekunden!',
+'Zum Schluss die <b>Soße</b>! Tippe im richtigen Moment, damit die Soße im goldenen Feld landet. 6 Runden – das Feld wird immer kleiner und die Flasche schneller!'];
+const brief=(i,go)=>{$('content').innerHTML=`<div class="cook-row"><div class="cook" style="font-size:0">${CEM(100)}</div><div class="speech">${BR[i]}</div></div><div class="action-row"><button id="goBtn">Los geht's ➜</button></div>`;$('goBtn').onclick=go};
+let pname='Gast';const inp=document.createElement('input');inp.maxLength=16;inp.placeholder='Dein Name';try{inp.value=localStorage.getItem('dname')||''}catch{}
+inp.style.cssText='width:100%;margin-top:12px;padding:13px;border-radius:12px;border:3px solid #86502d;font:inherit;font-weight:800;text-align:center';$('begin').before(inp);
+$('begin').onclick=()=>{const n=inp.value.trim();if(n.length<2){inp.focus();inp.placeholder='Bitte Namen eingeben!';return}pname=n;try{localStorage.setItem('dname',n)}catch{}const go=()=>{if(DB)api('/players/'+uid,'PUT',{name:n,ts:Date.now()}).catch(()=>{});current=0;total=0;$('score').textContent=0;showGame()};if(!DB){go();return}api('/meta').then(m=>{if(m&&m.released)alert('Die Runde ist schon beendet – das Ranking steht fest. Danke fürs Mitmachen!');else go()}).catch(go)};
+$('again').style.display='none';
+const _n=next;next=function(){_n();if(current>=4)endEvent()};
+const DB='CLAUDE',HOST_PIN='1234'; // <- DB = Firebase-Adresse eintragen, HOST_PIN ändern (siehe ANLEITUNG.md)
+const st_=document.createElement('style');st_.textContent=`.rl{position:relative;max-height:min(42vh,340px);overflow-y:auto;background:#0005;border-radius:14px;padding:6px;-webkit-overflow-scrolling:touch}.rk{display:flex;gap:8px;padding:8px 10px;border-radius:9px;align-items:center}.rk:nth-child(odd){background:#ffffff14}.rk.me{background:#ffd16d!important;color:#2a1a0a;font-weight:900}.rn{width:38px}.nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mybox{position:sticky;bottom:8px;margin-top:10px;background:#ffd16d;color:#2a1a0a;border-radius:14px;padding:12px;text-align:center;font-weight:900;font-size:18px;box-shadow:0 4px 0 #9d5d1b}`;document.head.append(st_);
+const rows=(l,uid)=>l.map((x,i)=>`<div class="rk${x.id==uid?' me':''}"><span class="rn">${['🥇','🥈','🥉'][i]||i+1+'.'}</span><span class="nm">${esc(x.name)}</span><b>${x.score}</b></div>`).join('');
+const realApi=async(p,m,b)=>{const r=await fetch(DB+p+'.json',{method:m||'GET',headers:b?{'Content-Type':'application/json'}:undefined,body:b?JSON.stringify(b):undefined});if(!r.ok)throw 0;return r.json()};
+let _db;const getDb=async()=>_db||(_db=await claude.use('db'));
+const api=async(p,m,b)=>{const db=await getDb();m=m||'GET';
+if(p=='/meta'){const r=db.doc('meta/state');if(m=='PUT'){await r.set(b);return b}const x=await r.get();return x.exists?x.data():null}
+if(p=='/scores'||p=='/players'){const c=db.collection(p.slice(1)),x=await c.get();if(m=='DELETE'){await Promise.all(x.docs.map(d=>c.doc(d.id).delete()));return null}const o={};x.docs.forEach(d=>o[d.id]=d.data());return o}
+const[,col,id]=p.split('/'),r=db.collection(col).doc(id);if(m=='PUT'){await r.set(b);return b}const x=await r.get();return x.exists?x.data():null};
+const uid=(()=>{try{return localStorage.pid||(localStorage.pid=Math.random().toString(36).slice(2)+Date.now().toString(36))}catch{return Math.random().toString(36).slice(2)}})();
+const load=async()=>{const[s,m,pl]=await Promise.all([api('/scores'),api('/meta'),api('/players')]);const list=Object.entries(s||{}).map(([id,v])=>({id,...v})).sort((a,b)=>b.score-a.score||a.ts-b.ts),n=Math.max(Object.keys(pl||{}).length,list.length);return{list,n,sticky:!!(m&&m.released),rel:!!(m&&m.released)||(n>0&&list.length>=n)}};
+async function endEvent(){const box=document.createElement('div');box.style.cssText='width:100%;max-width:440px;margin:10px auto 0;text-align:left';$('rank').after(box);
+if(!DB){box.innerHTML=`<div class="mybox">${total} Punkte</div><small>Ranking noch nicht eingerichtet.</small>`;return}
+let bad=false;box.textContent='Ranking wird geladen …';
+try{const o=await api('/scores/'+uid);if(!o||o.score<total)await api('/scores/'+uid,'PUT',{name:pname,score:total,ts:Date.now()})}catch(e){bad=true}
+const warn=()=>bad?'<div style="background:#ffb4a8;color:#5a1208;border-radius:12px;padding:10px;margin-bottom:10px;font-weight:800;text-align:center">⚠️ Dein Ergebnis konnte nicht gespeichert werden (keine Schreibrechte).</div>':'';let first=true;const draw=async()=>{try{const{list,rel,n,sticky}=await load(),r=list.findIndex(x=>x.id==uid)+1,old=$('rl'),top=old?old.scrollTop:0;if(rel&&!sticky)api('/meta','PUT',{released:true}).catch(()=>{});
+if(!rel){box.innerHTML=warn()+`<div style="text-align:center;padding:10px"><div style="font-size:56px">🥙⏳</div><div style="font-size:22px;font-weight:900;color:#ffd16d">Geschafft! Du hast ${total} Punkte.</div><p><b>Bitte warten – die anderen spielen noch …</b></p><div style="height:16px;background:#0006;border-radius:9px;overflow:hidden"><div style="width:${Math.round(list.length/Math.max(n,1)*100)}%;height:100%;background:linear-gradient(#ffd36e,#e9a52d);transition:width .5s"></div></div><p>${list.length} von ${n} Spielern fertig<br><small>Sobald alle fertig sind, erscheint die Rangliste.</small></p></div>`;return}
+const win=r==1?`<div style="background:linear-gradient(#ffe08a,#f4b544);color:#3a1d05;border-radius:14px;padding:14px;text-align:center;font-weight:900;font-size:20px;margin-bottom:10px">🏆 DU HAST GEWONNEN!<br>Döner-Gutschein – zeig diesen Bildschirm am Stand vor! 🥙</div>`:'';
+box.innerHTML=warn()+win+`<b>🏅 Rangliste (${list.length} Spieler)</b><div class="rl" id="rl">${rows(list,uid)}</div><div class="mybox">Dein Platz: ${r||'–'} von ${list.length} · ${total} Pkt${r>1?'<br><small>Danke fürs Mitspielen!</small>':''}</div>`;
+const l=$('rl');if(first){const me=l.querySelector('.me');if(me)l.scrollTop=me.offsetTop-l.clientHeight/2;first=false}else l.scrollTop=top}catch(e){box.innerHTML=warn()+'<div style="padding:12px;text-align:center">⚠️ Ranking nicht erreichbar.<br><b>'+total+' Punkte</b></div>'}};
+draw();const iv=setInterval(draw,4000);gameCleanups.push(()=>clearInterval(iv))}
+const hb=document.createElement('button');hb.textContent='👑 Host';hb.style.cssText='margin-top:8px;padding:6px 12px;font-size:12px;width:auto;opacity:.7';document.querySelector('.intro-bottom').append(hb);
+hb.onclick=()=>{if(!DB){alert('Erst die Firebase-Adresse im Code eintragen (siehe ANLEITUNG.md).');return}if(prompt('Host-PIN')!==HOST_PIN)return;
+const ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:#172532f5;color:#fff;z-index:99;overflow:auto;padding:18px;text-align:center';
+ov.innerHTML=`<h2>👑 Host – „Ich glaubs“ Schopfloch</h2><p>QR-Code zum Mitspielen:</p><div id="qr" style="background:#fff;display:inline-block;padding:8px;border-radius:10px;margin:8px;line-height:0"></div><input id="hurl" value="${esc(location.href)}" style="width:100%;max-width:420px;padding:8px;border-radius:8px;border:0"><p style="font-size:12px">Link der Seite einfügen/prüfen – der QR-Code passt sich an.</p><div id="hrank" style="max-width:440px;margin:14px auto;text-align:left"></div><div class="action-row"><button id="hend">▶ Ranking jetzt freigeben</button><button id="hopen">Wieder sperren</button><button id="hreset">🗑 Liste leeren</button><button id="hx">Schließen</button></div><div id="hmsg"></div>`;document.body.append(ov);
+const mk=()=>{try{const q=qrcode(0,'M');q.addData($('hurl').value);q.make();$('qr').innerHTML=q.createSvgTag(6,2)}catch(e){$('qr').textContent='QR nicht verfügbar'}};$('hurl').oninput=mk;mk();
+const poll=async()=>{try{const{list,rel,n}=await load();$('hrank').innerHTML=`<b>${list.length} von ${n} fertig – ${rel?'Ranking ist freigegeben':'Spieler warten'}</b><div class="rl">${rows(list,'')}</div>`}catch(e){}};poll();const iv=setInterval(poll,3000);
+$('hx').onclick=()=>{clearInterval(iv);ov.remove()};
+const setC=v=>async()=>{try{await api('/meta','PUT',{released:v});$('hmsg').textContent=v?'Freigegeben – alle sehen jetzt die Rangliste.':'Wieder gesperrt.'}catch(e){$('hmsg').textContent='Fehler'}};$('hend').onclick=setC(true);$('hopen').onclick=setC(false);
+$('hreset').onclick=async()=>{if(confirm('Wirklich ALLE Ergebnisse löschen?')){try{await api('/scores','DELETE');await api('/players','DELETE');await api('/meta','PUT',{released:false});poll()}catch(e){$('hmsg').textContent='Fehler'}}}};
+</script></body></html>
